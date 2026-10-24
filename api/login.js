@@ -1,10 +1,12 @@
 const bcrypt = require("bcryptjs");
 const { sql, send, setSession, jsonOnly, getIp, limit } = require("./_lib");
+const { checkTurnstile } = require("./_turnstile");
 const DUMMY = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8.0Gv0v1c5l9mH2o5mVY9vOq3O6o5e";
 
 module.exports = async (req, res) => {
   try {
     if (!jsonOnly(req, res)) return;
+    if (!(await checkTurnstile(req, res))) return;
     const b = req.body || {};
     const email = String(b.email || "").trim().toLowerCase();
     const pw = String(b.password || "");
