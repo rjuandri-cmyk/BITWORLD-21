@@ -28,7 +28,7 @@
     '.pbadge{display:inline-block;margin:12px 0 0;padding:7px 14px;border-radius:999px;background:rgba(34,197,94,.18);color:#86efac;font-size:13px;font-weight:700}' +
     '.fm input[readonly]{opacity:.65}' +
     '#v-mine2{background:#f4f5fb;color:#1b1d3a;justify-content:flex-start}' +
-    '.mn-wrap{width:100%;max-width:520px;margin:0 auto;text-align:center}' +
+    '.mn-wrap{width:100%;max-width:520px;margin:0 auto;text-align:center;padding-bottom:28px}' +
     '.mn-orb{width:164px;height:164px;border-radius:50%;margin:10px auto 14px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 28%,#fff 0%,#eceefc 48%,#c7cbf5 100%);box-shadow:0 18px 38px rgba(107,95,240,.28),inset -10px -14px 26px rgba(107,95,240,.18)}' +
     '.mn-orb::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px dashed rgba(107,95,240,.5);animation:mnspin 18s linear infinite}' +
     '.mn-orb::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 0 rgba(107,95,240,.35)}' +
@@ -36,9 +36,8 @@
     '.mn-coin{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;letter-spacing:.5px;color:#5a4300;background:linear-gradient(135deg,#fff0a8,#e9b50c);box-shadow:0 6px 14px rgba(160,110,0,.35),inset 0 2px 4px rgba(255,255,255,.7)}' +
     '@keyframes mnspin{to{transform:rotate(360deg)}}' +
     '@keyframes mnpulse{0%{box-shadow:0 0 0 0 rgba(107,95,240,.4)}100%{box-shadow:0 0 0 28px rgba(107,95,240,0)}}' +
-    '.mn-bal{display:flex;align-items:center;justify-content:center;gap:10px;font-size:42px;font-weight:800;color:#d9a400;letter-spacing:-1px;font-variant-numeric:tabular-nums}' +
+    '.mn-bal{display:flex;align-items:center;justify-content:center;gap:10px;font-size:42px;font-weight:800;color:#d9a400;letter-spacing:-1px;font-variant-numeric:tabular-nums;margin-bottom:18px}' +
     '.mn-dot{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#fff0a8,#e9b50c);flex-shrink:0}' +
-    '.mn-unit{margin:4px 0 16px;font-size:11px;letter-spacing:3px;color:#8a8fb0;font-weight:600}' +
     '.mn-card{background:#fff;border-radius:22px;padding:14px 18px;margin-bottom:12px;box-shadow:0 6px 20px rgba(60,60,140,.08)}' +
     '.mn-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;font-size:15px;color:#3d4163;text-align:left}' +
     '.mn-row b{color:#12142e;font-weight:700}' +
@@ -54,8 +53,7 @@
     '.mn-btn:disabled{background:#a9a4f3;box-shadow:none;cursor:default;transform:none}' +
     '.mn-msg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:13px;display:none}' +
     '.mn-msg.err{display:block;background:#ffe3e3;color:#a12626}' +
-    '.mn-msg.ok{display:block;background:#dcf7e6;color:#17663b}' +
-    '.mn-note{margin:14px 6px 20px;font-size:12px;line-height:1.5;color:#8a8fb0}';
+    '.mn-msg.ok{display:block;background:#dcf7e6;color:#17663b}';
   document.head.appendChild(st);
 
   /* ===== Menu: 4 utama + Lainnya ===== */
@@ -141,7 +139,7 @@
     var locked = !!me.wallet && !editing;
     b.innerHTML =
       '<h2>' + T("Profil", "Profile") + '</h2><p class="sub" id="pWho"></p>' +
-      '<div class="mst"><div>' + T("Saldo poin", "Points") + '<b id="pBal"></b></div>' +
+      '<div class="mst"><div>' + T("Saldo", "Balance") + '<b id="pBal"></b></div>' +
       '<div>Wallet<b id="pStat"></b></div></div>' +
       '<label for="pWallet">' + T("Alamat wallet BSC (BEP-20)", "BSC wallet address (BEP-20)") + '</label>' +
       '<input id="pWallet" placeholder="0x..." autocomplete="off" autocapitalize="off" spellcheck="false">' +
@@ -208,7 +206,6 @@
     b.innerHTML =
       '<div class="mn-orb" id="mnOrb"><div class="mn-coin">BTW</div></div>' +
       '<div class="mn-bal"><i class="mn-dot"></i><span id="mnBal">0</span></div>' +
-      '<div class="mn-unit">' + T("POIN BTW (INTERNAL)", "BTW POINTS (INTERNAL)") + '</div>' +
       '<div class="mn-card">' +
         '<div class="mn-row"><span>' + T("Hadiah per sesi", "Reward per session") + '</span><b>' + (RATE * HRS).toLocaleString("id-ID", { maximumFractionDigits: 3 }) + ' BTW</b></div>' +
         '<div class="mn-row"><span>Rate</span><em>' + String(RATE).replace(".", ",") + ' / ' + T("jam", "hr") + '</em></div>' +
@@ -220,8 +217,7 @@
       '</div>' +
       '<div class="mn-prog"><i id="mnBar"></i></div>' +
       '<button class="mn-btn" type="button" id="mnBtn" disabled>-</button>' +
-      '<div class="mn-msg" id="mnMsg"></div>' +
-      '<p class="mn-note">' + T("Poin ini tercatat di akun Bitworld Anda (internal) dan belum berupa token di blockchain.", "These points are recorded in your Bitworld account (internal) and are not yet an on-chain token.") + '</p>';
+      '<div class="mn-msg" id="mnMsg"></div>';
     g("mnBtn").onclick = claim;
 
     function upd() {
