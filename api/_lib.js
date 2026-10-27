@@ -68,6 +68,18 @@ async function consumeToken(token, type) {
 // Kirim email lewat Resend
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 async function sendMail(to, subject, html) {
+    if (process.env.BREVO_API_KEY) {
+    const bf = process.env.MAIL_FROM || "";
+    const m = bf.match(/^(.*)<(.+)>$/);
+    const sender = m ? { name: m[1].trim().replace(/"/g, "") || "Bitworld", email: m[2].trim() } : { name: "Bitworld", email: bf.trim() };
+    const br = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": process.env.BREVO_API_KEY, "Content-Type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ sender, to: [{ email: to }], subject, htmlContent: html })
+    });
+    if (!br.ok) throw new Error("Brevo gagal: " + br.status + " " + (await br.text()));
+    return;
+  }
   const key = process.env.RESEND_API_KEY, from = process.env.MAIL_FROM;
   if (!key || !from) throw new Error("RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
   const r = await fetch("https://api.resend.com/emails", {
