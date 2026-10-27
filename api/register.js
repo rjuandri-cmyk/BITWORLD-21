@@ -20,7 +20,11 @@ module.exports = async (req, res) => {
 
     let mailSent = true;
     try { await sendVerifyMail({ id: rows[0].id, email, name }); }
-    catch (e) { console.error("Gagal kirim email:", e); mailSent = false; }
+    catch (e) {
+      // pesan ditulis satu baris (e.message) supaya terbaca penuh di Vercel Logs
+      console.error("Gagal kirim email: " + (e && e.message ? e.message : String(e)));
+      mailSent = false;
+    }
     send(res, 200, { ok: true, mail_sent: mailSent });
   } catch (e) { console.error(e); send(res, 500, { error: "server" }); }
 };

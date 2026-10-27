@@ -6,7 +6,7 @@ const sql = neon(process.env.DATABASE_URL);
 const MAXAGE = 60 * 60 * 24 * 30; // sesi login 30 hari
 const RATE = 0.004; // poin per jam
 const HOURS = 24;   // lama 1 sesi mining (jam)
-const SITE_URL = (process.env.SITE_URL || "https://bitworld21.vercel.app").replace(/\/$/, "");
+const SITE_URL = (process.env.SITE_URL || "https://bitworld-web3-phi.vercel.app").trim().replace(/\/$/, "");
 
 function secret() {
   if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET belum diisi di Vercel");
@@ -65,23 +65,39 @@ async function consumeToken(token, type) {
   return rows.length ? rows[0].user_id : null;
 }
 
-// Kirim email lewat Resend
+// ---------- Kirim email: Brevo (jika BREVO_API_KEY ada), selain itu Resend ----------
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// MAIL_FROM boleh "Nama <email@domain.com>" atau cukup "email@domain.com"
+function parseFrom(raw) {
+  const s = String(raw || "").trim().replace(/^["']+|["']+$/g, "");
+  const m = s.match(/^(.*)<\s*([^<>\s]+@[^<>\s]+)\s*>$/);
+  if (m) return { name: m[1].trim().replace(/["']/g, "") || "Bitworld", email: m[2].trim() };
+  if (/^[^<>\s]+@[^<>\s]+$/.test(s)) return { name: "Bitworld", email: s };
+  return null;
+}
+
 async function sendMail(to, subject, html) {
-    if (process.env.BREVO_API_KEY) {
-    const bf = process.env.MAIL_FROM || "";
-    const m = bf.match(/^(.*)<(.+)>$/);
-    const sender = m ? { name: m[1].trim().replace(/"/g, "") || "Bitworld", email: m[2].trim() } : { name: "Bitworld", email: bf.trim() };
+  const brevoKey = String(process.env.BREVO_API_KEY || "").trim();
+  console.log("mail provider:", brevoKey ? "brevo" : "resend");
+
+  if (brevoKey) {
+    const sender = parseFrom(process.env.MAIL_FROM);
+    if (!sender) throw new Error("MAIL_FROM tidak valid. Contoh: Bitworld <email@domain.com> atau email@domain.com");
     const br = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
-      headers: { "api-key": process.env.BREVO_API_KEY, "Content-Type": "application/json", accept: "application/json" },
+      headers: { "api-key": brevoKey, "Content-Type": "application/json", accept: "application/json" },
       body: JSON.stringify({ sender, to: [{ email: to }], subject, htmlContent: html })
     });
-    if (!br.ok) throw new Error("Brevo gagal: " + br.status + " " + (await br.text()));
+    const body = await br.text();
+    if (!br.ok) throw new Error("Brevo gagal: " + br.status + " " + body);
+    console.log("brevo terkirim:", br.status);
     return;
   }
-  const key = process.env.RESEND_API_KEY, from = process.env.MAIL_FROM;
-  if (!key || !from) throw new Error("RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
+
+  const key = String(process.env.RESEND_API_KEY || "").trim();
+  const from = String(process.env.MAIL_FROM || "").trim();
+  if (!key || !from) throw new Error("BREVO_API_KEY tidak terbaca, dan RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
